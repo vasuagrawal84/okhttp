@@ -223,8 +223,14 @@ public final class RealConnection extends Http2Connection.Listener implements Co
       ce.initCause(e);
       throw ce;
     }
-    source = Okio.buffer(Okio.source(rawSocket));
-    sink = Okio.buffer(Okio.sink(rawSocket));
+    try {
+      source = Okio.buffer(Okio.source(rawSocket));
+      sink = Okio.buffer(Okio.sink(rawSocket));
+    } catch (NullPointerException npe) {
+      if ("throw with null exception".equals(npe.getMessage())) {
+        throw new IOException(npe);
+      }
+    }
   }
 
   private void establishProtocol(ConnectionSpecSelector connectionSpecSelector) throws IOException {
